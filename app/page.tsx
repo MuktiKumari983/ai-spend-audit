@@ -21,7 +21,6 @@ export default function Home() {
 
   const [report, setReport] = useState<FullAuditReport | null>(null);
 
-  // 1. Load Form State from LocalStorage on mount (Persistence Requirement)
   useEffect(() => {
     const savedState = localStorage.getItem('creded_audit_form');
     if (savedState) {
@@ -33,7 +32,6 @@ export default function Home() {
     }
   }, []);
 
-  // 2. Save Form State to LocalStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('creded_audit_form', JSON.stringify(formState));
   }, [formState]);
@@ -65,6 +63,11 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Runtime absolute validation guard to prevent negative or zero structures
+    if (formState.teamSize < 1) {
+      alert("Team size cannot be less than 1 seat.");
+      return;
+    }
     setReport(runAuditEngine(formState));
   };
 
@@ -84,7 +87,6 @@ export default function Home() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT: Input Form Profile */}
           <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-6">
             <h2 className="text-xl font-bold border-b border-slate-800 pb-3 text-slate-200">1. Stack Configuration</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -94,8 +96,14 @@ export default function Home() {
                   type="number"
                   min="1"
                   value={formState.teamSize}
-                  onChange={(e) => handleInputChange('teamSize', parseInt(e.target.value) || 1)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-blue-500 transition"
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setFormState({
+                      ...formState,
+                      teamSize: isNaN(val) || val < 1 ? 1 : val,
+                    });
+                  }}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
@@ -175,7 +183,6 @@ export default function Home() {
             </form>
           </div>
 
-          {/* RIGHT: Analytical Report View */}
           <div className="lg:col-span-7 space-y-6">
             {!report ? (
               <div className="bg-slate-900/50 border border-dashed border-slate-800 rounded-2xl p-12 text-center text-slate-500 text-sm">
@@ -183,7 +190,6 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Hero Savings Scoreboard */}
                 <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl grid grid-cols-2 gap-4">
                   <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Monthly Optimization</span>
@@ -195,7 +201,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Granular Breakdown Table */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">2. Itemized Remediation Log</h3>
                   <div className="space-y-3">
@@ -221,7 +226,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Credex Interactive Conditional Trigger Core */}
                 <div className="bg-blue-950/20 border border-blue-900/30 rounded-2xl p-5 shadow-xl">
                   {report.totalMonthlySavings > 500 ? (
                     <div className="space-y-3">
