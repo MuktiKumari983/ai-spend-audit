@@ -20,6 +20,7 @@ export default function Home() {
   });
 
   const [report, setReport] = useState<FullAuditReport | null>(null);
+  const [trackerEmail, setTrackerEmail] = useState('');
 
   useEffect(() => {
     const savedState = localStorage.getItem('creded_audit_form');
@@ -63,7 +64,6 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Runtime absolute validation guard to prevent negative or zero structures
     if (formState.teamSize < 1) {
       alert("Team size cannot be less than 1 seat.");
       return;
@@ -241,8 +241,27 @@ export default function Home() {
                       <h4 className="text-base font-bold">Your efficiency profile looks decent!</h4>
                       <p className="text-xs text-slate-400">Enter your operational contact below to freeze this profile and receive alerts if retail seat pricing matrices change.</p>
                       <div className="flex gap-2">
-                        <input type="email" placeholder="name@company.com" className="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs grow focus:outline-none text-white" />
-                        <button className="bg-slate-800 hover:bg-slate-700 text-xs px-3 rounded-lg font-bold transition">Track Stack</button>
+                        <input 
+                          type="email" 
+                          placeholder="name@company.com" 
+                          value={trackerEmail}
+                          onChange={(e) => setTrackerEmail(e.target.value)}
+                          className="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs grow focus:outline-none text-white focus:border-blue-500 transition-colors" 
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            if (!trackerEmail || !trackerEmail.includes('@')) {
+                              alert('Please enter a valid company email address.');
+                              return;
+                            }
+                            alert(`Success! Stack tracking pipeline activated for ${trackerEmail}.`);
+                            setTrackerEmail('');
+                          }}
+                          className="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 rounded-lg font-bold transition active:scale-95"
+                        >
+                          Track Stack
+                        </button>
                       </div>
                     </div>
                   )}
